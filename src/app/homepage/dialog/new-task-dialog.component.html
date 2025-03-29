@@ -1,0 +1,107 @@
+<main class="w-full flex flex-col space-y-2">
+    <section class="w-full flex flex-col">
+        <div class="p-2 flex flex-col bg-gray-700 rounded-b-md">
+            <div class="w-full flex flex-row space-x-2 items-center justify-between p-2 bg-blue-500 rounded-t-md">
+                <p class="text-md text-white">New Task</p>
+                <button class="text-white rounded-full text-md cursor-pointer" (click)="close()">X</button>
+            </div>
+            <section class="w-full flex flex-col space-y-4 bg-[#21243D] p-2 rounded cursor-pointer">
+                <textarea [(ngModel)]="newTaskKanban.task" class="w-full rounded-md bg-gray-700 text-xs text-white outline-none p-2" placeholder="Input new task"></textarea>
+                <section class="w-full flex flex-row space-x-2">
+                    <div class="w-1/2 flex flex-col space-y-2">
+                        <label class="text-xs text-white">Status</label>
+                        <select class="w-full text-white text-xs flex flex-col bg-blue-500 px-2 py-1 rounded-md cursor-pointer" [(ngModel)]="newTaskKanban.status">
+                            <ng-container *ngFor="let option of data.optionsStatus">
+                                <option class="w-full text-xs text-white" [ngClass]="option.label" [value]="option.value">
+                                    {{ option.value }}
+                                </option>
+                            </ng-container>
+                        </select> 
+                    </div>
+                    <div class="w-1/2 flex flex-col space-y-2">
+                        <label class="text-xs text-white">Priority</label>
+                        <select class="w-full text-white text-xs flex flex-col bg-blue-500 px-2 py-1 rounded-md cursor-pointer" [(ngModel)]="newTaskKanban.priority">
+                            <ng-container *ngFor="let option of data.optionsPriority">
+                                <option class="w-full text-xs text-white"  [ngClass]="option.label" [value]="option.value">
+                                    {{ option.value }}
+                                </option>
+                            </ng-container>
+                        </select> 
+                    </div>
+                </section>
+                <div class="flex flex-col space-y-2">
+                    <label class="text-xs text-white">Type</label>
+                    <select class="w-full text-white text-xs flex flex-col bg-blue-500 px-2 py-1 rounded-md cursor-pointer" [(ngModel)]="newTaskKanban.type">
+                        <ng-container *ngFor="let option of data.optionsType">
+                            <option class="w-full text-xs text-white"  [ngClass]="option.label" [value]="option.value">
+                                {{ option.value }}
+                            </option>
+                        </ng-container>
+                    </select> 
+                </div>
+                <div class="w-full flex flex-col space-y-2">
+                    <label class="text-xs text-white">Developer</label>
+                    <div class="flex flex-col justify-center relative">
+                        <button (click)="isOpenDevNewTaskKanban = !isOpenDevNewTaskKanban" class="flex flex-row items-center space-x-2">
+                            <ng-container *ngIf="newTaskKanban?.developer?.length! > 0; else emptyListDev">
+                                <div class="w-full flex flex-row flex-wrap gap-2">
+                                    <ng-container *ngFor="let dev of newTaskKanban.developer">
+                                        <img class="w-6 rounded-full" [src]="dev.image" [alt]="dev.name" [matTooltip]="dev.name">
+                                    </ng-container>
+                                    <img *ngIf="newTaskKanban?.developer?.length! > 0 && newTaskKanban?.developer?.length! < data.listDeveloper?.length!" class="w-6" src="assets/icon-add-person.svg" alt="person">
+                                </div>
+                            </ng-container>
+                            <ng-template #emptyListDev>
+                                <img class="w-4" src="assets/icon-person.svg" alt="person">
+                                <p class="text-xs text-white">Person</p>
+                            </ng-template>
+                        </button>
+                        <ng-container *ngIf="isOpenDevNewTaskKanban">
+                            <div class="w-full bg-blue-500 p-2 mt-2 rounded-md grid grid-cols-4 gap-2">
+                                <ng-container *ngFor="let image of getListExistingDeveloper(newTaskKanban)">
+                                    <div class="col-span-1" (click)="setNewTaskDeveloper(image); isOpenDevNewTaskKanban = !isOpenDevNewTaskKanban">
+                                        <img class="w-8 rounded-full" [src]="image.image" [alt]="image.name" [matTooltip]="image.name">
+                                    </div>
+                                </ng-container>
+                                <ng-container *ngFor="let image of newTaskKanban?.developer">
+                                    <div class="col-span-1 relative">
+                                        <div (click)="deleteDeveloper(image); isOpenDevNewTaskKanban = !isOpenDevNewTaskKanban" class="absolute top-0 left-4 cursor-pointer bg-red-600 w-4 h-4 flex items-center text-center justify-center rounded-full z-10">
+                                            <p class="text-xs font-bold text-center p-0 text-white">X</p>
+                                        </div>
+                                        <img class="w-8 rounded-full cursor-default opacity-75" [src]="image.image" [alt]="image.name" [matTooltip]="image.name">
+                                    </div>
+                                </ng-container>
+                            </div>
+                        </ng-container>
+                    </div>
+                </div>
+                <div class="w-full flex flex-col space-y-2">
+                    <label class="text-xs text-white">Date</label>
+                    <mat-form-field class="bg-blues-500 w-full">
+                        <div class="w-full flex flex-row space-x-2 bg-white rounded-md items-center">
+                            <input class="w-full text-xs px-2 cursor-pointer outline-none bg-transparent rounded-md" [matDatepicker]="dateNew"
+                            (dateChange)="newTaskKanban.date = onDateChange($event)"
+                            placeholder="Pilih Tanggal"
+                            (click)="dateNew.open()" placeholder="Pilih Tanggal" readonly>
+                            <div class="w-10 h-8 flex items-center justify-center pt-2">
+                                <mat-datepicker-toggle matSuffix [for]="dateNew"></mat-datepicker-toggle>
+                            </div>
+                        </div>
+                        <mat-datepicker #dateNew></mat-datepicker>
+                    </mat-form-field>
+                </div>
+                <section class="w-full flex flex-row space-x-2">
+                    <div class="w-1/2 flex flex-col space-y-2">
+                        <label class="text-xs text-white">Estimasi Sprint</label>
+                        <input type="number" min="0" class="w-full text-xs px-2 py-1 rounded-md" (input)="newTaskKanban.estimatedSP = newTaskKanban.estimatedSP.valueOf() < 0 ? 0 : newTaskKanban.estimatedSP" [(ngModel)]="newTaskKanban.estimatedSP">
+                    </div>
+                    <div class="w-1/2 flex flex-col space-y-2">
+                        <label class="text-xs text-white">Estimasi Sprint</label>
+                        <input type="number" min="0" class="w-full text-xs px-2 py-1 rounded-md" (input)="newTaskKanban.actualSP = newTaskKanban.actualSP.valueOf() < 0 ? 0 : newTaskKanban.actualSP" [(ngModel)]="newTaskKanban.actualSP">
+                    </div>
+                </section>
+                <button [disabled]="newTaskKanban.task === ''" [ngClass]="newTaskKanban.task === '' ? 'bg-gray-600' : 'bg-blue-500'" class="text-xs py-2 px-2 rounded-md text-white" (click)="addNewTaskKanban()">Add Task</button>
+            </section>
+        </div>
+    </section>
+</main>

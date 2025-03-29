@@ -1,0 +1,276 @@
+<main class="w-full max-w-7xl mx-auto flex flex-col space-y-4 h-screen p-6">
+    <section class="w-full flex flex-row space-x-4 border-b-1 border-gray-700">
+        <div (click)="toggleSetType('main')" class="group w-fit pr-6 flex flex-row items-center cursor-pointer relative">
+            <img class="w-4 mr-2" src="assets/icon-home.svg" alt="home">
+            <p class="text-md text-white">Main Table</p>
+            <span [ngClass]="type === 'main' ? 'scale-x-100' : 'scale-x-0'" class="absolute bottom-0 mt-1 left-0 w-full h-[2px] bg-blue-500 transition-transform origin-left duration-300"></span>
+        </div>
+        <div (click)="toggleSetType('kanban')" class="group w-fit pr-6 flex flex-row items-center cursor-pointer relative">
+            <p class="text-md text-white">Kanban</p>
+            <span [ngClass]="type === 'kanban' ? 'scale-x-100' : 'scale-x-0'" class="absolute bottom-0 left-0 w-full h-[2px] bg-blue-500 transition-transform origin-left duration-300"></span>
+        </div>
+    </section>
+    <section class="w-full flex flex-row space-x-6">
+        <button (click)="toggleAddNewTask()" class="bg-blue-500 rounded-md px-2 flex flex-row items-center justify-center">
+            <span class="text-white text-xs py-1.5">New task</span>
+            <div class="w-[1px] h-full bg-blue-600 mx-2"></div>
+            <img class="w-3" src="assets/icon-arrow-down.svg" alt="expand">
+        </button>
+        <button class="w-auto cursor-pointer flex flex-row items-center space-x-2">
+            <img class="w-4" src="assets/icon-search.svg" alt="search">
+            <input [formControl]="input" type="search" class="min-w-0 w-10 cursor-pointer py-1 text-xs bg-transparent rounded text-white transition-all duration-300 focus:min-w-72 focus:px-2" placeholder="search">
+        </button>
+        <div class="flex flex-col items-center justify-center relative">
+            <button (click)="isOpenPerson = !isOpenPerson; isOpenSort = false" class="flex flex-row items-center space-x-2">
+                <img class="w-4" src="assets/icon-person.svg" alt="person">
+                <p class="text-xs text-white">Person</p>
+            </button>
+            <ng-container *ngIf="isOpenPerson">
+                <div class="absolute top-8 left-0 w-fit min-w-32 overflow-x-hidden p-2 rounded-md bg-blue-500 max-h-56 flex flex-col space-y-4 overflow-y-auto"> 
+                    <button (click)="filterDeveloperByName('all')" class="flex flex-row items-center space-x-2">
+                        <img class="w-5 rounded-full" src="assets/icon-person.svg" alt="person">
+                        <p class="text-md hover:text-gray-600 text-white">Semua</p>
+                    </button>
+                    <ng-container *ngFor="let item of listDeveloper">
+                        <button (click)="filterDeveloperByName(item.name)" class="flex flex-row items-center space-x-2">
+                            <img class="w-5 rounded-full" [src]="item.image" alt="person">
+                            <p class="text-md hover:text-gray-600 text-white">{{item.name}}</p>
+                        </button>
+                    </ng-container>
+                </div>
+            </ng-container>
+        </div>
+        <div class="flex flex-col items-center justify-center relative">
+            <button (click)="isOpenSort = !isOpenSort; isOpenPerson = false" class="flex flex-row items-center space-x-2">
+                <img class="w-4" src="assets/icon-sort.svg" alt="sort">
+                <p class="text-xs text-white">Sort</p>
+            </button>
+            <ng-container *ngIf="isOpenSort">
+                <div class="absolute top-8 left-0 w-fit min-w-32 overflow-x-hidden p-2 rounded-md bg-blue-500 max-h-56 flex flex-col space-y-4 overflow-y-auto"> 
+                    <ng-container *ngFor="let item of sort">
+                        <button (click)="sortingDataList(item)" class="flex flex-row items-center space-x-2">
+                            <p class="text-xs hover:text-gray-600 text-white">{{item}}</p>
+                        </button>
+                    </ng-container>
+                </div>
+            </ng-container>
+        </div>
+    </section>
+
+    <section *ngIf="type === 'main'" class="w-full flex flex-col space-y-4">
+        <div class="w-full flex flex-row space-x-2">
+            <img class="w-5" src="assets/icon-arrow-down.svg" alt="expand">
+            <p class="text-md font-medium text-[#7F5283]">All Task</p>
+        </div>
+        <div class="w-full flex flex-col">
+            <section class="w-full flex flex-col rounded-l-md bg-gray-700 border-l-8 border-[#7F5283]">
+                <!-- HEADERS -->
+                <section class="w-full grid grid-cols-12 border-1 border-white rounded-tr-md border-l-[#7F5283]">
+                    <div class="col-span-1 border-r-1 border-white py-2 flex items-center justify-center">
+                        <input (change)="handleChanges($event)" type="checkbox" class="bg-transparent w-4 h-4 rounded-md border-white">
+                    </div>
+                    <div class="col-span-3 border-r-1 border-white py-2 text-white text-xs text-center">Task</div>
+                    <div class="col-span-1 border-r-1 border-white py-2 text-white text-xs text-center">Developer</div>
+                    <div class="col-span-1 border-r-1 border-white py-2 text-white text-xs text-center">Status</div>
+                    <div class="col-span-1 border-r-1 border-white py-2 text-white text-xs text-center">Priority</div>
+                    <div class="col-span-1 border-r-1 border-white py-2 text-white text-xs text-center">Type</div>
+                    <div class="col-span-1 border-r-1 border-white py-2 text-white text-xs text-center">Date</div>
+                    <div class="col-span-1 border-r-1 border-white py-2 text-white text-xs items-center justify-center flex flex-row">Estimated SP <span><img class="w-4 ml-2" src="assets/icon-info.svg" alt="info"></span></div>
+                    <div class="col-span-1 border-r-1 border-white text-white text-xs py-2 flex flex-row items-center justify-center ">Actual SP <span><img class="w-4 ml-2" src="assets/icon-info.svg" alt="info"></span></div>
+                    <div class="col-span-1 text-white text-xs py-2 flex flex-row pl-2">+</div>
+                </section>
+                <ng-container *ngFor="let item of dataList; let index = index; trackBy: trackByFn">
+                    <section class="w-full grid grid-cols-12 border-1 border-white border-t-0 border-l-[#7F5283]">
+                        <div class="col-span-1 border-r-1 py-2 border-white flex items-center justify-center">
+                            <input [(ngModel)]="item.isChecked" (click)="getChangeStatusByCheckbox(item)" type="checkbox" class="cursor-pointer bg-transparent w-4 h-4 rounded-md border-white flex">
+                        </div>
+                        <div class="col-span-3 border-r-1 text-white text-xs text-center flex flex-row">
+                            <div class="w-3/4 border-r-1 border-white p-2 flex items-center">
+                                <textarea #taskInput [ngClass]="[true ? 'text-area-' + index : 'text-area-' + index, selectedIndex === index + 1 && tab === 'task' ? 'cursor-pointer' : 'cursor-default']" [attr.data-index]="index" 
+                                    class="w-full bg-transparent text-xs text-white outline-none resize-none overflow-hidden"
+                                    [rows]="getTextareaHeight(index)"
+                                    [(ngModel)]="item.task" [readonly]="selectedIndex === index + 1 && tab === 'task' ? false : true"
+                                    ong>
+                                </textarea>
+                            </div>
+                            <div (click)="openPanelByType(index, 'task', $event, item)" class="w-1/4 cursor-pointer flex items-center justify-center py-2">
+                                <img class="w-6" src="assets/icon-task-new.svg" alt="task">
+                            </div>
+                        </div>
+                        <div (click)="selectedIndex = selectedIndex === index + 1 ? 0 : index + 1; tab = 'developer'" class="col-span-1 cursor-pointer relative border-r-1 py-2 border-white text-white text-xs flex flex-row items-center justify-center flex-wrap space-x-1 gap-1 px-1">
+                            <ng-container *ngIf="item?.developer?.length! > 0">
+                                <ng-container *ngFor="let key of item.developer">
+                                    <img class="w-6 rounded-full" [src]="key.image" [alt]="key.name" [matTooltip]="key.name">
+                                </ng-container>
+                            </ng-container>
+                            <ng-container *ngIf="getListExistingDeveloper(item)?.length! != 0">
+                                <img class="w-6 rounded-full" src="assets/icon-person.svg" alt="person">
+                            </ng-container>
+                            <div *ngIf="selectedIndex === index + 1 && tab === 'developer'" class="w-40 absolute z-30 top-4 right-0 bg-blue-500 p-2 rounded-md grid grid-cols-4 gap-2">
+                                <ng-container *ngFor="let image of getListExistingDeveloper(item)">
+                                    <div class="col-span-1">
+                                        <img (click)="setDeveloper(item.id, image); $event.stopPropagation()" class="w-10 rounded-full" [src]="image.image" [alt]="image.name" [matTooltip]="image.name">
+                                    </div>
+                                </ng-container>
+                                <ng-container *ngFor="let image of item.developer">
+                                    <div class="col-span-1 relative">
+                                        <div (click)="deleteDeveloper(item.id, image); $event.stopPropagation()" class="absolute top-0 right-0 cursor-pointer bg-red-600 w-4 h-4 flex items-center text-center justify-center rounded-full z-10">
+                                            <p class="text-xs font-bold text-center p-0">X</p>
+                                        </div>
+                                        <img class="w-10 rounded-full cursor-default opacity-75" [src]="image.image" [alt]="image.name" [matTooltip]="image.name">
+                                    </div>
+                                </ng-container>
+                            </div>
+                        </div>
+                        <div [ngClass]="getStatusColor(item.status)" (click)="openPanelByType(index, 'status', $event, item)" class="col-span-1 relative cursor-pointer border-r-1 py-2 border-white flex items-center justify-center">
+                            <p class="text-white text-xs text-center ">{{item.status}}</p>
+                            <div class="absolute top-4 right-0 z-50 w-40 flex flex-col" *ngIf="selectedIndex === index + 1 && tab === 'status'">
+                                <select class="w-40 text-white text-xs flex flex-col bg-blue-500 p-2 rounded-md cursor-pointer" (click)="$event.stopPropagation()" (change)="selectedIndex = 0" [(ngModel)]="item.status">
+                                    <ng-container *ngFor="let option of optionsStatus">
+                                        <option class="w-full text-xs text-white" [ngClass]="option.label" [value]="option.value">
+                                            {{ option.value }}
+                                        </option>
+                                    </ng-container>
+                                </select> 
+                            </div>
+                        </div>
+                        <div [ngClass]="getPriorityColor(item.priority)" (click)="openPanelByType(index, 'priority', $event, item)" class="col-span-1 relative cursor-pointer border-r-1 py-2 border-white flex items-center justify-center">
+                            <p class="text-white text-xs text-center ">{{item.priority}}</p>
+                            <div class="absolute top-4 right-0 z-50 w-40 flex flex-col" *ngIf="selectedIndex === index + 1 && tab === 'priority'">
+                                <select class="w-40 text-white text-xs flex flex-col bg-blue-500 p-2 rounded-md cursor-pointer" (click)="$event.stopPropagation()" (change)="selectedIndex = 0" [(ngModel)]="item.priority">
+                                    <ng-container *ngFor="let option of optionsPriority">
+                                        <option class="w-full text-xs text-white"  [ngClass]="option.label" [value]="option.value">
+                                            {{ option.value }}
+                                        </option>
+                                    </ng-container>
+                                </select> 
+                            </div>
+                        </div>
+                        <div [ngClass]="getTypeColor(item.type)" (click)="openPanelByType(index, 'type', $event, item)" class="col-span-1 cursor-pointer relative border-r-1 py-2 border-white flex items-center justify-center">
+                            <p class="text-white text-xs text-center ">{{item.type}}</p>
+                            <div class="absolute top-4 right-0 z-50 w-40 flex flex-col" *ngIf="selectedIndex === index + 1 && tab === 'type'">
+                                <select class="w-40 text-white text-xs flex flex-col bg-blue-500 p-2 rounded-md cursor-pointer" (click)="$event.stopPropagation()" (change)="selectedIndex = 0" [(ngModel)]="item.type">
+                                    <ng-container *ngFor="let option of optionsType">
+                                        <option class="w-full text-xs text-white"  [ngClass]="option.label" [value]="option.value">
+                                            {{ option.value }}
+                                        </option>
+                                    </ng-container>
+                                </select> 
+                            </div>
+                        </div>
+                        <div (click)="openPanelByType(index, 'date', $event, item)" class="col-span-1 relative cursor-pointer border-r-1 py-2 border-white flex items-center justify-center">
+                            <p class="text-white text-xs text-center">{{item.date | date: 'dd MMMM, yyyy'}}</p>
+                            <div class="absolute top-0 left-0 z-50 w-40 flex flex-col" *ngIf="selectedIndex === index + 1 && tab === 'date'">
+                                <mat-form-field class="bg-blues-500">
+                                    <input class="opacity-0" matInput [matDatepicker]="picker" (dateChange)="item.date = onDateChange($event)" [(ngModel)]="selectedDate">
+                                    <mat-datepicker-toggle class="opacity-0" matIconSuffix [for]="picker"></mat-datepicker-toggle>
+                                    <mat-datepicker #picker></mat-datepicker>
+                                </mat-form-field>
+                            </div>
+                        </div>
+                        <div (click)="openPanelByType(index, 'estimatedSP', $event, item)" class="col-span-1 relative cursor-pointer border-r-1 py-2 border-white items-center justify-center flex flex-row">
+                            <p class="text-white text-xs text-center ">{{item.estimatedSP}} SP</p>
+                            <div class="absolute top-4 right-0 z-50 w-40 flex flex-col space-y-2 bg-blue-500 rounded-md p-2" (click)="$event.stopPropagation()" *ngIf="selectedIndex === index + 1 && tab === 'estimatedSP'">
+                                <p class="text-xs text-white">Estimasi Sprint</p>
+                                <input type="number" min="0" class="w-full text-xs p-2 rounded-md" (keydown.enter)="selectedIndex = 0" (input)="item.estimatedSP = item.estimatedSP < 0 ? 0 : item.estimatedSP" [(ngModel)]="item.estimatedSP">
+                            </div>
+                        </div>
+                        <div (click)="openPanelByType(index, 'actualSP', $event, item)" class="col-span-1 relative cursor-pointer border-r-1 py-2 border-white items-center justify-center flex flex-row">
+                            <p class="text-white text-xs text-center ">{{item.actualSP}} SP</p>
+                            <div class="absolute top-4 right-0 z-50 w-40 flex flex-col space-y-2 bg-blue-500 rounded-md p-2" (click)="$event.stopPropagation()" *ngIf="selectedIndex === index + 1 && tab === 'actualSP'">
+                                <p class="text-xs text-white">Actual Sprint</p>
+                                <input type="number" min="0" class="w-full text-xs p-2 rounded-md" (keydown.enter)="selectedIndex = 0" (input)="item.actualSP = item.actualSP < 0 ? 0 : item.actualSP" [(ngModel)]="item.actualSP">
+                            </div>
+                        </div>
+                        <div class="col-span-1 text-white py-2 text-xs flex flex-row items-center justify-center"></div>
+                    </section>
+                </ng-container>
+                <ng-container *ngIf="isNewTask">
+                    <section class="w-full grid grid-cols-12 border-t-0 border-l-[#7F5283]">
+                        <button disabled class="col-span-1 bg-gray-800 py-2 border-white border-b-1 border-r-1 flex items-center justify-center opacity-50 cursor-not-allowed">
+                            <input disabled type="checkbox" class="cursor-not-allowed bg-transparent w-4 h-4 rounded-md border-white">
+                        </button>
+                        <div class="col-span-11 border-b-1 border-r-1 text-white text-xs text-center flex flex-row">
+                            <div class="w-full border-white p-2 flex items-center">
+                                <input type="text"  [(ngModel)]="addNewTask" (keydown.enter)="AddTask($event)" class="w-full bg-transparent text-xs text-white outline-none" placeholder="+ Add Task">
+                            </div>
+                        </div>
+                    </section>
+                </ng-container>
+            </section>
+            <section class="pl-2 w-full grid grid-cols-12 border-t-0 border-l-[#7F5283]">
+                <div class="col-span-4 opacity-0"></div>
+                <div class="col-span-1 border-r-1 border-b-1 border-l-1 rounded-bl-md py-2 border-white text-white text-xs flex flex-row space-x-1 items-center justify-center flex-wrap">
+                    <ng-container *ngFor="let item of getTotalDeveloperAssigned()">
+                        <img class="w-5 rounded-full" [src]="item.image" [alt]="item.name" [matTooltip]="item.name">
+                    </ng-container>
+                </div>
+                <div class="col-span-1 border-r-1 border-b-1 py-2 border-white text-white text-xs text-center flex items-center justify-center">
+                    <ng-container *ngFor="let item of getStatusColorAssigned()">
+                        <div [ngClass]="true ? getStatusColor(item) : ''" class="w-6 h-4" [matTooltip]="item"></div>
+                    </ng-container>
+                </div>
+                <div class="col-span-1 border-r-1 border-b-1 py-2 border-white text-white text-xs text-center flex items-center justify-center">
+                    <ng-container *ngFor="let item of getPriortyColorAssigned()">
+                        <div [ngClass]="true ? getPriorityColor(item) : ''" class="w-6 h-4" [matTooltip]="item"></div>
+                    </ng-container>
+                </div>
+                <div class="col-span-1 border-r-1 border-b-1 py-2 border-white text-white text-xs text-center flex items-center justify-center">
+                    <ng-container *ngFor="let item of getTypeColorAssigned()">
+                        <div [ngClass]="true ? getTypeColor(item) : ''" class="w-6 h-4" [matTooltip]="item"></div>
+                    </ng-container>
+                </div>
+                <div class="col-span-1 border-r-1 border-b-1 py-2 border-white text-white text-xs text-center flex items-center justify-center">
+                    <div class="w-full bg-gray-300 rounded-full flex items-center justify-center text-gray-600 text-[10px] p-1">
+                        {{getDateRange()}}
+                    </div>
+                </div>
+                <div class="col-span-1 border-r-1 border-b-1 py-2 border-white text-white text-xs items-center justify-center flex flex-row">{{getTotalEstimatedSP()}} SP</div>
+                <div class="col-span-1 text-white py-2 border-r-1 border-b-1 text-xs flex flex-row items-center justify-center">{{getTotalActualSP()}} SP</div>
+                <div class="col-span-1 rounded-br-md text-white py-2 border-r-1 border-b-1 text-xs flex flex-row items-center justify-center"></div>
+            </section>      
+        </div>
+    </section>
+    <section *ngIf="type === 'kanban'" class="w-full flex flex-col space-y-4">
+        <main class="w-full flex flex-row space-x-4">
+            <ng-container *ngFor="let col of isColumnFilter()">
+                <section class="w-1/5 flex flex-col" cdkDropList  [id]="col.id" [cdkDropListData]="col.tasks" [cdkDropListConnectedTo]="getListColId()" (cdkDropListDropped)="drop($event)">
+                    <p [ngClass]="col.label" class="text-md text-white p-2 rounded-t-md">{{col.title}}</p>
+                    <div class="p-2 flex flex-col space-y-2 bg-gray-700 rounded-b-md">
+                        <ng-container *ngFor="let item of col.tasks">
+                            <section class="w-full flex flex-col space-y-4 bg-[#21243D] p-2 rounded cursor-pointer" cdkDrag>
+                                <p class="text-white text-xs">{{item.task}}</p>
+                                <div class="w-full flex flex-row flex-wrap gap-2">
+                                    <section *ngIf="item.priority !== ''" class="flex flex-row">
+                                        <div [ngClass]="getPriorityColor(item.priority)" class="w-1.5 h-full rounded-l-md"></div>
+                                        <button class="w-fit rounded-r-md bg-gray-700 text-xs text-white py-1 px-2">{{item.priority}}</button>
+                                    </section>
+                                    <section *ngIf="item.type !== ''" class="flex flex-row">
+                                        <div [ngClass]="getTypeColor(item.type)" class="w-1.5 h-full rounded-l-md"></div>
+                                        <button class="w-fit rounded-r-md bg-gray-700 text-xs text-white py-1 px-2">{{item.type}}</button>
+                                    </section>
+                                    <button *ngIf="item.estimatedSP > 0 " class="w-fit rounded-md bg-gray-700 text-xs text-white py-1 px-2"><span class="bg-black text-white text-xs rounded-full px-1">{{item.estimatedSP}}</span> SP</button>
+                                </div>
+                                <div class="w-full flex flex-row items-center justify-between">
+                                    <div class="w-2/3 flex flex-row flex-wrap gap-1">
+                                        <ng-container *ngFor="let key of item.developer">
+                                            <img class="w-6 h-6 rounded-full" [src]="key.image" [alt]="key.name" [matTooltip]="key.name">
+                                        </ng-container>
+                                    </div>
+                                    <div class="w-1/3 flex flex-row space-x-4">
+                                        <div (click)="editKanbanTask(col.id,item)" class="cursor-pointer flex items-center justify-center py-2">
+                                            <img class="w-5 h-5" src="assets/icon-task-new.svg" alt="task">
+                                        </div>
+                                        <div class="cursor-pointer flex items-center justify-center py-2">
+                                            <img class="w-5 h-5" src="assets/icon-swatch.svg" alt="swatch">
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                        </ng-container>
+                    </div>
+                </section>
+            </ng-container>
+        </main>
+    </section>
+</main>
