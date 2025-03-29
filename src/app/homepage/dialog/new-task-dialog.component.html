@@ -96,7 +96,7 @@
                         <input type="number" min="0" class="w-full text-xs px-2 py-1 rounded-md" (input)="newTaskKanban.estimatedSP = newTaskKanban.estimatedSP.valueOf() < 0 ? 0 : newTaskKanban.estimatedSP" [(ngModel)]="newTaskKanban.estimatedSP">
                     </div>
                     <div class="w-1/2 flex flex-col space-y-2">
-                        <label class="text-xs text-white">Estimasi Sprint</label>
+                        <label class="text-xs text-white">Aktual Sprint</label>
                         <input type="number" min="0" class="w-full text-xs px-2 py-1 rounded-md" (input)="newTaskKanban.actualSP = newTaskKanban.actualSP.valueOf() < 0 ? 0 : newTaskKanban.actualSP" [(ngModel)]="newTaskKanban.actualSP">
                     </div>
                 </section>
