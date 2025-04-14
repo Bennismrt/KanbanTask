@@ -237,7 +237,7 @@
                 <section class="w-1/5 flex flex-col" cdkDropList  [id]="col.id" [cdkDropListData]="col.tasks" [cdkDropListConnectedTo]="getListColId()" (cdkDropListDropped)="drop($event)">
                     <p [ngClass]="col.label" class="text-md text-white p-2 rounded-t-md">{{col.title}}</p>
                     <div class="p-2 flex flex-col space-y-2 bg-gray-700 rounded-b-md">
-                        <ng-container *ngFor="let item of col.tasks; trackBy: trackByFn">
+                        <ng-container *ngFor="let item of col.tasks">
                             <section class="w-full flex flex-col space-y-4 bg-[#21243D] p-2 rounded cursor-pointer" cdkDrag>
                                 <p class="text-white text-xs">{{item.task}}</p>
                                 <div class="w-full flex flex-row flex-wrap gap-2">

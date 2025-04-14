@@ -119,7 +119,6 @@ export class HomepageComponent implements OnInit {
         event.currentIndex
       );
     }
-
     const movedItem = event.container.data[event.currentIndex];
     const targetColumn = this.columns.find(column => column.id === event.container.id);
     
@@ -127,6 +126,7 @@ export class HomepageComponent implements OnInit {
       movedItem.status = targetColumn.status;
       movedItem.isChecked = targetColumn.status === 'Done' ? true :false;
     }
+    this.addTaskToColumns();
   }
 
   getListColId(){
@@ -346,6 +346,7 @@ export class HomepageComponent implements OnInit {
         let newTask = { task: this.addNewTask, status: 'Ready to start', id: crypto.randomUUID(), date: formattedDate, developer: [], estimatedSP: 0, actualSP: 0 } as unknown as MockData;
         // this.dataList.unshift(newTask);
         TASK_DATA.unshift(newTask);
+        this.dataList = TASK_DATA;
         this.addNewTask = '';
     }
   }
