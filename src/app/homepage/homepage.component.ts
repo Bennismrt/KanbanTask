@@ -71,6 +71,7 @@ export class HomepageComponent implements OnInit {
   @ViewChild('picker') datepicker!: MatDatepicker<any>;
   @ViewChildren('taskInput') taskInputs!: QueryList<ElementRef>;
   @ViewChild('searchInput', { static: true }) searchInput!: ElementRef;
+  @ViewChild('focusNewTask') focusNewTask!: ElementRef<HTMLInputElement>;
 
 
   columns: { id: string, title: string; label: string; status: string; tasks: MockData[] }[] = [
@@ -103,7 +104,7 @@ export class HomepageComponent implements OnInit {
   // -----------KANBAN ------------
   addTaskToColumns() {
     this.columns.forEach(column => {
-        column.tasks = this.dataList.filter(task => task.status === column.status);
+        column.tasks = TASK_DATA.filter(task => task.status === column.status);
     });
   }
 
@@ -150,7 +151,7 @@ export class HomepageComponent implements OnInit {
               Object.assign(task, res);
             }
           }
-          return res;
+          return key;
         })
       }
     })
@@ -172,11 +173,16 @@ export class HomepageComponent implements OnInit {
       ...column,
       tasks: [...column.tasks] // Membuat salinan baru dari tasks
     }));
-    return data.map(column => {
-      column.tasks = column.tasks.filter((res) => 
-        res.developer.some((key) => key.name.includes(name)));
-      return column;
-    });
+
+    if (name !== ''){
+      return data.map(column => {
+        column.tasks = column.tasks.filter((res) => 
+          res.developer.some((key) => key.name.includes(name)));
+        return column;
+      });
+    }
+
+    return data;
     
   }
 
@@ -204,7 +210,7 @@ export class HomepageComponent implements OnInit {
     }
 
     if(this.selectedFilterPerson !== ''){
-      return this.filterPersonKanban(this.selectedFilterPerson)
+      return this.filterPersonKanban(this.selectedFilterPerson === 'all' ? '' : this.selectedFilterPerson);
     }
 
     if(this.selectedSortKanban !== ''){
@@ -241,20 +247,30 @@ export class HomepageComponent implements OnInit {
         if(res){
           this.columns.filter((key) => {
             if(key.status === res.status){
-              key.tasks.push(res);
+              key.tasks.unshift(res);
             }
             return res;
           })
         }
       })
+    }else{
+      setTimeout(() => {
+        this.focusNewTask?.nativeElement?.focus();
+      });
     }
+
+
   }
 
   toggleSetType(type: "main" | "kanban"){
     this.type = type;
-    if(type = 'main'){
+    this.input.setValue('', {emitEvent: false});
+    this.selectedFilterPerson = '';
+    if(type === 'main'){
+      console.log('this.columns', this.columns);
       this.dataList = this.columns.flatMap(res => res.tasks);
       TASK_DATA = this.columns.flatMap(res => res.tasks);
+      
     }else{
       this.addTaskToColumns();
     }
@@ -265,9 +281,10 @@ export class HomepageComponent implements OnInit {
         if(value !== undefined && value !== null && value !== ''){
           if(this.type === 'main'){
             this.dataList = TASK_DATA.slice().filter((res) => 
-                res.task.trim().toLocaleLowerCase().includes(value.trim().toLocaleLowerCase())
+              res.task.trim().toLocaleLowerCase().includes(value.trim().toLocaleLowerCase())
             );
           }
+          this.selectedFilterPerson = '';
         }else{
           if(this.type === 'main'){
             this.dataList = [...TASK_DATA];
@@ -296,9 +313,9 @@ export class HomepageComponent implements OnInit {
     }
     if (tab === 'task' && this.selectedIndex === index + 1) {
         setTimeout(() => {
-            const inputToFocus = this.taskInputs.get(this.selectedIndex - 1);
+            const inputToFocus = this.taskInputs?.get(this.selectedIndex - 1);
             if (inputToFocus) {
-              inputToFocus.nativeElement.focus();
+              inputToFocus?.nativeElement?.focus();
             }
         }, 0);
     }
@@ -326,7 +343,9 @@ export class HomepageComponent implements OnInit {
         year: 'numeric'
     });
     if(this.addNewTask !== ''){
-        this.dataList.push({ task: this.addNewTask, id: crypto.randomUUID(), date: formattedDate, developer: [], estimatedSP: 0, actualSP: 0 } as unknown as MockData);
+        let newTask = { task: this.addNewTask, status: 'Ready to start', id: crypto.randomUUID(), date: formattedDate, developer: [], estimatedSP: 0, actualSP: 0 } as unknown as MockData;
+        // this.dataList.unshift(newTask);
+        TASK_DATA.unshift(newTask);
         this.addNewTask = '';
     }
   }
@@ -357,12 +376,15 @@ export class HomepageComponent implements OnInit {
 
   sortingDataList(type: string){
     if(type == 'Ascending'){
-      if(this.type === 'main') this.dataList = this.dataList.sort((a, b) =>  a.task.localeCompare(b.task));
+      if(this.type === 'main') this.dataList = TASK_DATA.sort((a, b) =>  a.task.localeCompare(b.task));
       this.selectedSortKanban = 'Ascending';
     }else{
-      if(this.type === 'main') this.dataList = this.dataList.sort((a, b) =>  a.task.localeCompare(b.task));
+      if(this.type === 'main') this.dataList = TASK_DATA.sort((a, b) =>  b.task.localeCompare(a.task));
       this.selectedSortKanban = 'Descending';
     }
+
+    this.input.setValue('', {emitEvent:false});
+    this.selectedFilterPerson = '';
     
     this.isOpenPerson = false;
     this.isOpenSort = !this.isOpenSort;
@@ -371,16 +393,18 @@ export class HomepageComponent implements OnInit {
   filterDeveloperByName(name: string){
     if(name == 'all'){
       if(this.type === 'main')this.dataList = TASK_DATA;
-      this.selectedFilterPerson = '';
+      this.selectedFilterPerson = 'all';
     }else{
       if(this.type === 'main'){
         this.dataList = TASK_DATA.slice().filter((res) => 
             res.developer.some((key) => key.name.includes(name))
         );
-      }else{
-        this.selectedFilterPerson = name;
       }
+      this.selectedFilterPerson = name;
     }
+
+    this.input.setValue('', {emitEvent:false});
+    this.selectedSortKanban = '';
     this.isOpenPerson = !this.isOpenPerson;
     this.isOpenSort = false;
   }
@@ -419,18 +443,18 @@ export class HomepageComponent implements OnInit {
   }
 
   getStatusColorAssigned(){
-    const uniqueStatus = Array.from(new Set(this.dataList.map(task => task.status)));
-    return uniqueStatus;
+    // const uniqueStatus = Array.from(new Set(this.dataList.map(task => task.status)));
+    return this.getPercentageOfTotalData('status');
   }
 
   getPriortyColorAssigned(){
-    const uniquePriority = Array.from(new Set(this.dataList.map(task => task.priority)));
-    return uniquePriority;
+    // const uniquePriority = Array.from(new Set(this.dataList.map(task => task.priority)));
+    return this.getPercentageOfTotalData('priority');
   }
 
   getTypeColorAssigned(){
-    const uniqueType = Array.from(new Set(this.dataList.map(task => task.type)));
-    return uniqueType;
+    // const uniqueType = Array.from(new Set(this.dataList.map(task => task.type)));
+    return this.getPercentageOfTotalData('type');
   }
 
   getTotalEstimatedSP(){
@@ -447,5 +471,18 @@ export class HomepageComponent implements OnInit {
     const sortedTasks = [...this.dataList].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
     const dateRange = sortedTasks[0]?.date! ? `${sortedTasks[0]?.date!} - ${sortedTasks[sortedTasks.length - 1]?.date!}` : '-';
     return dateRange
+  }
+
+  getPercentageOfTotalData(key: keyof MockData){
+    let total: Record<string, number> = {};
+    this.dataList.forEach((res) => {
+      const value = res[key as keyof MockData] as string;
+      total[value] = (total[value] || 0) + 1; 
+    });
+    
+    let percent = Object.entries(total).map(([color, count]) => ({
+      color, percentage: ((count / this.dataList.length) * 100).toFixed(0).toString()
+    }));
+    return percent
   }
 }

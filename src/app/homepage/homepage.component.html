@@ -23,7 +23,7 @@
         <div class="flex flex-col items-center justify-center relative">
             <button (click)="isOpenPerson = !isOpenPerson; isOpenSort = false" class="flex flex-row items-center space-x-2">
                 <img class="w-4" src="assets/icon-person.svg" alt="person">
-                <p class="text-xs text-white">Person</p>
+                <p class="text-xs text-white">{{selectedFilterPerson === '' || selectedFilterPerson === 'all' ? 'Person' : selectedFilterPerson}}</p>
             </button>
             <ng-container *ngIf="isOpenPerson">
                 <div class="absolute top-8 left-0 w-fit min-w-32 overflow-x-hidden p-2 rounded-md bg-blue-500 max-h-56 flex flex-col space-y-4 overflow-y-auto"> 
@@ -172,14 +172,14 @@
                             <p class="text-white text-xs text-center ">{{item.estimatedSP}} SP</p>
                             <div class="absolute top-4 right-0 z-50 w-40 flex flex-col space-y-2 bg-blue-500 rounded-md p-2" (click)="$event.stopPropagation()" *ngIf="selectedIndex === index + 1 && tab === 'estimatedSP'">
                                 <p class="text-xs text-white">Estimasi Sprint</p>
-                                <input type="number" min="0" class="w-full text-xs p-2 rounded-md" (keydown.enter)="selectedIndex = 0" (input)="item.estimatedSP = item.estimatedSP < 0 ? 0 : item.estimatedSP" [(ngModel)]="item.estimatedSP">
+                                <input type="number" min="0" class="w-full text-xs p-2 rounded-md" (keydown.enter)="selectedIndex = 0" (input)="item.estimatedSP = item.estimatedSP.valueOf() < 0 ? 0 : item.estimatedSP" [(ngModel)]="item.estimatedSP">
                             </div>
                         </div>
                         <div (click)="openPanelByType(index, 'actualSP', $event, item)" class="col-span-1 relative cursor-pointer border-r-1 py-2 border-white items-center justify-center flex flex-row">
                             <p class="text-white text-xs text-center ">{{item.actualSP}} SP</p>
                             <div class="absolute top-4 right-0 z-50 w-40 flex flex-col space-y-2 bg-blue-500 rounded-md p-2" (click)="$event.stopPropagation()" *ngIf="selectedIndex === index + 1 && tab === 'actualSP'">
                                 <p class="text-xs text-white">Actual Sprint</p>
-                                <input type="number" min="0" class="w-full text-xs p-2 rounded-md" (keydown.enter)="selectedIndex = 0" (input)="item.actualSP = item.actualSP < 0 ? 0 : item.actualSP" [(ngModel)]="item.actualSP">
+                                <input type="number" min="0" class="w-full text-xs p-2 rounded-md" (keydown.enter)="selectedIndex = 0" (input)="item.actualSP = item.actualSP.valueOf() < 0 ? 0 : item.actualSP" [(ngModel)]="item.actualSP">
                             </div>
                         </div>
                         <div class="col-span-1 text-white py-2 text-xs flex flex-row items-center justify-center"></div>
@@ -192,7 +192,7 @@
                         </button>
                         <div class="col-span-11 border-b-1 border-r-1 text-white text-xs text-center flex flex-row">
                             <div class="w-full border-white p-2 flex items-center">
-                                <input type="text"  [(ngModel)]="addNewTask" (keydown.enter)="AddTask($event)" class="w-full bg-transparent text-xs text-white outline-none" placeholder="+ Add Task">
+                                <input type="text" #focusNewTask [(ngModel)]="addNewTask" (keydown.enter)="AddTask($event)" class="w-full bg-transparent text-xs text-white outline-none" placeholder="+ Add Task">
                             </div>
                         </div>
                     </section>
@@ -206,18 +206,18 @@
                     </ng-container>
                 </div>
                 <div class="col-span-1 border-r-1 border-b-1 py-2 border-white text-white text-xs text-center flex items-center justify-center">
-                    <ng-container *ngFor="let item of getStatusColorAssigned()">
-                        <div [ngClass]="true ? getStatusColor(item) : ''" class="w-6 h-4" [matTooltip]="item"></div>
+                    <ng-container *ngFor="let item of getStatusColorAssigned(); trackBy: trackByFn">
+                        <div [ngClass]="getStatusColor(item.color)" class="w-6 h-4" [matTooltip]="item.color + ' : '+ item.percentage + '%'"></div>
                     </ng-container>
                 </div>
                 <div class="col-span-1 border-r-1 border-b-1 py-2 border-white text-white text-xs text-center flex items-center justify-center">
-                    <ng-container *ngFor="let item of getPriortyColorAssigned()">
-                        <div [ngClass]="true ? getPriorityColor(item) : ''" class="w-6 h-4" [matTooltip]="item"></div>
+                    <ng-container *ngFor="let item of getPriortyColorAssigned(); trackBy: trackByFn">
+                        <div [ngClass]="true ? getPriorityColor(item.color) : ''" class="w-6 h-4" [matTooltip]="item.color + ' : '+ item.percentage + '%'"></div>
                     </ng-container>
                 </div>
                 <div class="col-span-1 border-r-1 border-b-1 py-2 border-white text-white text-xs text-center flex items-center justify-center">
-                    <ng-container *ngFor="let item of getTypeColorAssigned()">
-                        <div [ngClass]="true ? getTypeColor(item) : ''" class="w-6 h-4" [matTooltip]="item"></div>
+                    <ng-container *ngFor="let item of getTypeColorAssigned(); trackBy: trackByFn">
+                        <div [ngClass]="true ? getTypeColor(item.color) : ''" class="w-6 h-4" [matTooltip]="item.color + ' : '+ item.percentage + '%'"></div>
                     </ng-container>
                 </div>
                 <div class="col-span-1 border-r-1 border-b-1 py-2 border-white text-white text-xs text-center flex items-center justify-center">
@@ -233,23 +233,23 @@
     </section>
     <section *ngIf="type === 'kanban'" class="w-full flex flex-col space-y-4">
         <main class="w-full flex flex-row space-x-4">
-            <ng-container *ngFor="let col of isColumnFilter()">
+            <ng-container *ngFor="let col of isColumnFilter();trackBy: trackByFn">
                 <section class="w-1/5 flex flex-col" cdkDropList  [id]="col.id" [cdkDropListData]="col.tasks" [cdkDropListConnectedTo]="getListColId()" (cdkDropListDropped)="drop($event)">
                     <p [ngClass]="col.label" class="text-md text-white p-2 rounded-t-md">{{col.title}}</p>
                     <div class="p-2 flex flex-col space-y-2 bg-gray-700 rounded-b-md">
-                        <ng-container *ngFor="let item of col.tasks">
+                        <ng-container *ngFor="let item of col.tasks; trackBy: trackByFn">
                             <section class="w-full flex flex-col space-y-4 bg-[#21243D] p-2 rounded cursor-pointer" cdkDrag>
                                 <p class="text-white text-xs">{{item.task}}</p>
                                 <div class="w-full flex flex-row flex-wrap gap-2">
-                                    <section *ngIf="item.priority !== ''" class="flex flex-row">
+                                    <section *ngIf="item.priority" class="flex flex-row">
                                         <div [ngClass]="getPriorityColor(item.priority)" class="w-1.5 h-full rounded-l-md"></div>
                                         <button class="w-fit rounded-r-md bg-gray-700 text-xs text-white py-1 px-2">{{item.priority}}</button>
                                     </section>
-                                    <section *ngIf="item.type !== ''" class="flex flex-row">
+                                    <section *ngIf="item.type" class="flex flex-row">
                                         <div [ngClass]="getTypeColor(item.type)" class="w-1.5 h-full rounded-l-md"></div>
                                         <button class="w-fit rounded-r-md bg-gray-700 text-xs text-white py-1 px-2">{{item.type}}</button>
                                     </section>
-                                    <button *ngIf="item.estimatedSP > 0 " class="w-fit rounded-md bg-gray-700 text-xs text-white py-1 px-2"><span class="bg-black text-white text-xs rounded-full px-1">{{item.estimatedSP}}</span> SP</button>
+                                    <button *ngIf="item.estimatedSP.valueOf() > 0 " class="w-fit rounded-md bg-gray-700 text-xs text-white py-1 px-2"><span class="bg-black text-white text-xs rounded-full px-1">{{item.estimatedSP}}</span> SP</button>
                                 </div>
                                 <div class="w-full flex flex-row items-center justify-between">
                                     <div class="w-2/3 flex flex-row flex-wrap gap-1">

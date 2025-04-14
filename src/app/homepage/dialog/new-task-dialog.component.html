@@ -2,7 +2,7 @@
     <section class="w-full flex flex-col">
         <div class="p-2 flex flex-col bg-gray-700 rounded-b-md">
             <div class="w-full flex flex-row space-x-2 items-center justify-between p-2 bg-blue-500 rounded-t-md">
-                <p class="text-md text-white">New Task</p>
+                <p class="text-md text-white">{{data.newTaskKanban ? 'Edit Task' : 'New Task'}}</p>
                 <button class="text-white rounded-full text-md cursor-pointer" (click)="close()">X</button>
             </div>
             <section class="w-full flex flex-col space-y-4 bg-[#21243D] p-2 rounded cursor-pointer">
@@ -100,7 +100,7 @@
                         <input type="number" min="0" class="w-full text-xs px-2 py-1 rounded-md" (input)="newTaskKanban.actualSP = newTaskKanban.actualSP.valueOf() < 0 ? 0 : newTaskKanban.actualSP" [(ngModel)]="newTaskKanban.actualSP">
                     </div>
                 </section>
-                <button [disabled]="newTaskKanban.task === ''" [ngClass]="newTaskKanban.task === '' ? 'bg-gray-600' : 'bg-blue-500'" class="text-xs py-2 px-2 rounded-md text-white" (click)="addNewTaskKanban()">Add Task</button>
+                <button [disabled]="newTaskKanban.task === ''" [ngClass]="newTaskKanban.task === '' ? 'bg-gray-600' : 'bg-blue-500'" class="text-xs py-2 px-2 rounded-md text-white" (click)="addNewTaskKanban()">{{data.newTaskKanban ? 'Edit Task' : 'Add Task'}}</button>
             </section>
         </div>
     </section>
